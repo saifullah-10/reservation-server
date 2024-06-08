@@ -7,7 +7,7 @@ const router = require("./router/router");
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://asset-management-6b046.web.app"],
     credentials: true,
   })
 );

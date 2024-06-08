@@ -4,7 +4,7 @@ const pdf = require("../pdf/generate_invoice");
 
 router.post("/invoice", (req, res, next) => {
   const data = req.body;
-  console.log(data);
+
   const stream = res.writeHead(200, {
     "Content-Type": "application/pdf",
     "content-disposition": 'attachment; filename="Reservation_invoice.pdf',
