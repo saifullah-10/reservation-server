@@ -16,6 +16,7 @@ function makePDF(dataCallback, endCallback, data) {
     vehicle_name,
     start_date_time,
     end_date_time,
+    summaryData,
     rental_tax,
     discount,
     options,
@@ -55,20 +56,22 @@ by waiving this coverage renter agrees to be hold liable for damages up to the e
     .text(`RENTER INFO:`, 50, 150)
     .fontSize(10)
     .text(`Name: ${first_name} ${last_name}`, 50, 165)
-    .text(`Email: ${email}`, 50, 180)
-    .text(`Phone: ${phone}`, 50, 195)
-    .text("Monday 9:00 AM-6:00 PM", 20, 130, { align: "center" })
-    .text("Tuesday 9:00 AM-6:00 PM", 20, 145, { align: "center" })
-    .text("Wednesday 9:00 AM-6:00 PM", 20, 160, { align: "center" })
-    .text("Thursday 9:00 AM-6:00 PM", 20, 175, { align: "center" })
-    .text("Friday 9:00 AM-6:00 PM", 20, 190, { align: "center" })
-    .text("Saturday 9:00 AM-6:00 PM", 20, 205, { align: "center" })
-    .text("Sunday 9:00 AM-6:00 PM", 20, 220, { align: "center" });
+    .text(`Email: ${email}`, 50, 180, { width: 100 })
+    .text(`Phone: ${phone}`, 50, 205)
+    .text("Monday 9:00 AM-6:00 PM", 180, 130)
+    .text("Tuesday 9:00 AM-6:00 PM", 180, 145)
+    .text("Wednesday 9:00 AM-6:00 PM", 180, 160)
+    .text("Thursday 9:00 AM-6:00 PM", 180, 175)
+    .text("Friday 9:00 AM-6:00 PM", 180, 190)
+    .text("Saturday 9:00 AM-6:00 PM", 180, 205)
+    .text("Sunday 9:00 AM-6:00 PM", 180, 220);
 
   doc.moveDown();
 
   //   // Additional Authorized Driver(s)
-  doc.fontSize(16).text(`ADDITIONAL AUTHORIZED DRIVER(S)`, 50, 240);
+  doc
+    .fontSize(12)
+    .text(`ADDITIONAL AUTHORIZED DRIVER(S)`, 50, 240, { bold: true });
 
   doc.moveDown();
 
@@ -98,32 +101,32 @@ by waiving this coverage renter agrees to be hold liable for damages up to the e
     .fontSize(14)
     .text(`Referral:`, 50, 360)
     .fontSize(10)
-    .text(`NOTICE: ${notice}`, 50, 375, { width: 300 });
+    .text(`NOTICE: ${notice}`, 50, 375, { width: 250 });
 
   doc.moveDown();
   doc
     .fontSize(12)
-    .text("Accept", 60, 450)
+    .text("Accept", 60, 470)
     .fontSize(12)
-    .text("Reject", 150, 450)
+    .text("Reject", 150, 470)
     .fontSize(10)
     .text(
       `Rental service may be refused anyone when done in the best interest of the renting company or customer`,
       50,
-      470,
-      { width: 300 }
+      510,
+      { width: 250 }
     )
     .fontSize(10)
     .text(
       `-Rates do not include gasoline. - Reserves the right Additional Driver 1
 to collect deposit covering estimated rental charges.`,
       50,
-      500,
-      { width: 300 }
+      550,
+      { width: 250 }
     );
 
   //   // Right Column - Reservation and Charge Summary
-  const startX = 360;
+  const startX = 320;
   doc
     .fontSize(20)
     .text(`Reservation`, startX, 120)
@@ -148,39 +151,67 @@ to collect deposit covering estimated rental charges.`,
     )
     .moveDown();
 
-  doc.fontSize(16).text(`CHARGE SUMMARY`, startX, 240).fontSize(10);
+  //   draw table
+  const tableTop = 270;
+  const rowHeight = 30;
+  const tableWidth = 250;
+  const columnWidths = {
+    unit: 100,
+    price: 30,
+    amount: 50,
+  };
+  doc.rect(startX, 240, tableWidth, rowHeight).fill("#e0e0e0").stroke();
+  doc
+    .fillColor("#000000")
+    .fontSize(16)
+    .text(`CHARGE SUMMARY`, startX, 250)
+    .fontSize(10);
+  const rows = summaryData;
+  rows.forEach((row, i) => {
+    const y = tableTop + i * rowHeight;
 
-  //   chargeSummary.items.forEach((item, index) => {
-  //     doc
-  //       .text(item.description, startX, 220 + index * 15)
-  //       .text(item.unitPrice, startX + 150, 220 + index * 15)
-  //       .text(item.amount, startX + 200, 220 + index * 15);
-  //   });
+    // Alternate row background color
+    doc.rect(startX, y, tableWidth, rowHeight).fill("#e0e0e0").stroke();
 
-  //   doc
-  //     .text(`TOTAL ESTIMATED CHARGES`, startX, 320)
-  //     .text(chargeSummary.totalCharges, startX + 200, 320);
+    // Draw cells
+    doc
+      .fillColor("#000000")
+      .fontSize(10)
+      .text(row[0], startX, y + 5, { width: columnWidths.unit })
+      .text(row[1], startX + columnWidths.unit, y + 5)
+      .text(row[2], startX + columnWidths.unit + columnWidths.price, y + 5)
+      .text(
+        row[3],
+        startX +
+          columnWidths.unit +
+          columnWidths.price +
+          columnWidths.amount +
+          10,
+        y + 5,
+        {
+          width: 45,
+          align: "right",
+        }
+      );
+  });
 
-  //   doc.moveDown();
-
+  doc.moveDown();
   //   // Terms and Signature
-  //   doc
-  //     .fontSize(10)
-  //     .text(
-  //       "Your rental agreement offers, for an additional charge, ...",
-  //       50,
-  //       360,
-  //       { width: 500 }
-  //     )
-  //     .moveDown();
+  doc
+    .fontSize(10)
+    .text(
+      "Your rental agreement offers, for an additional charge, an optional waiver to cover all or a part of your responsibility for damage to or loss of the vehicle. Before deciding whether to purchase the waiver, you may wish to determine whether your own automobile insurance or credit card agreement provides you coverage for rental vehicle damage or loss and determine the amount of the deductible under your own insurance coverage. The purchase of the waiver is not mandatory. The waiver is not insurance. I acknowledge that I have received and read a copy of this.",
+      50,
+      620
+    )
+    .moveDown();
 
-  //   doc
-  //     .text("Renters Signature", 50, 500)
-  //     .text("__________________________", 50, 515);
+  doc
+    .text("Renters Signature:", 50, 700)
+    .text("_______________", 135, 700)
+    .text("Additional Driver 1:", 300, 700)
+    .text("_______________", 385, 700);
 
-  //   doc
-  //     .text("Additional Driver 1", 300, 500)
-  //     .text("__________________________", 300, 515);
   //
   //
   //
